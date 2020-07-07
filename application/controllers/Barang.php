@@ -298,6 +298,8 @@ class Barang extends CI_Controller {
 			$this->db->set($ser_saldo);
 			$this->db->insert('tbl_transaksi');
 		}
+		
+		
 		//utang/piutang
 
 		/********* insert transport_ke_ekspedisi **********/
@@ -358,6 +360,14 @@ class Barang extends CI_Controller {
 		
 
 		echo $data['grup_penjualan'];
+	}
+	
+	public function go_hapus($grup_penjualan)
+	{
+	 echo "Berhasil hapus ".$grup_penjualan;   
+	 //hapus dari tbl_transaksi
+	    $this->db->query("DELETE FROM tbl_transaksi WHERE id_referensi='$grup_penjualan'");
+	    $this->db->query("DELETE FROM tbl_barang_transaksi WHERE grup_penjualan='$grup_penjualan'");
 	}
 
 	public function form_penjualan()
@@ -724,6 +734,29 @@ class Barang extends CI_Controller {
 		$data['all'] = $this->m_barang->m_lap_penjualan($mulai,$selesai,$id_admin);	
 		$this->load->view('lap_penjualan',$data);
 	}
+
+
+
+	public function lap_penjualan_hapus()
+	{
+		$mulai = $this->input->get('mulai');
+		$selesai = $this->input->get('selesai');
+
+		$id_admin 	= $this->session->userdata('id_admin');
+		$level 		= $this->session->userdata('level');
+
+		if($level=='1')
+		{
+			$id_admin="";
+		}
+
+		$data['mulai'] = $mulai;
+		$data['selesai'] = $selesai;
+
+		$data['all'] = $this->m_barang->m_lap_penjualan($mulai,$selesai,$id_admin);	
+		$this->load->view('lap_penjualan_hapus',$data);
+	}
+
 
 	public function lap_penjualan_excel()
 	{

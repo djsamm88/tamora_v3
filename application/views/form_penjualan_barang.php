@@ -5,6 +5,8 @@ $saldo = 0;
 if(isset($group_penjualan))
 {
   $data = $this->m_barang->m_detail_penjualan($group_penjualan);    
+  
+  
   $saldo = rupiah($data[0]->saldo);
   $keterangan = $data[0]->keterangan;
   $z=0;
@@ -26,27 +28,28 @@ if(isset($group_penjualan))
                     <td>
                       <input id='jum_per_koli' type='hidden' value='$pend->jum_per_koli'>
                       <input id='jum_per_lusin' type='hidden' value='$pend->jum_per_lusin'>
-                      <input id='id_barang' name='id_barang[$z]' type='hidden' value='$pend->id'>
+                      <input id='id_barang' name='id_barang[]' type='hidden' value='$pend->id'>
                       $pend->id
                     </td>
                     <td id='stoknya'>$stok</td>
                     <td id='nama_barang'>$pend->nama_barang</td>
                     <td>
-                      <select name='satuan_jual[$z]' class='form-control' id='pilihSatuan' onchange='gantiHarga($pend->harga_retail,$pend->harga_lusin,$pend->harga_koli,$pend->jum_per_koli,$pend->jum_per_lusin,$(this))'>
+                      <select name='satuan_jual[]' class='form-control' id='pilihSatuan' onchange='gantiHarga($pend->harga_retail,$pend->harga_lusin,$pend->harga_koli,$pend->jum_per_koli,$pend->jum_per_lusin,$(this))'>
                         $pilihan
                       </select>
                     </td>
                     <td align='right'>
-                      <input  id='t4_harga' class='form-control' readonly name='harga_jual[$z]' value='".rupiah($pend->harga_jual)."'>
+                      <input  id='t4_harga' class='form-control' readonly name='harga_jual[]' value='".rupiah($pend->harga_jual)."'>
                     </td>
                     <td>
-                      <input class='form-control' type='number' id='jumlah_beli' name='jumlah[$z]'  placeholder='qty' required value='$pend->qty_jual'>
+                      <input class='form-control' type='number' id='jumlah_beli' name='jumlah[]'  placeholder='qty' required value='$pend->qty_jual'>
                     </td>
                     <td align='right' id='t4_sub_total'>".rupiah($pend->sub_total_jual)."</td>
                     <td>
                       <button class='btn btn-danger btn-xs' id='remove_order' type='button'>Hapus</button>
                     </td>
                   </tr>";
+
 
     $all_template .=$template;
 
@@ -107,7 +110,7 @@ if(isset($group_penjualan))
   <div class="col-sm-3">
     <input type="text" name="tgl_trx_manual" value="<?php echo date('Y-m-d H:i:s')?>" class="form-control datepicker">
     <small><i>Format Y-m-d H:i:s</i></small>
-    <input type="hidden" name="grup_penjualan" value="<?php echo date('ymdHis')?>" class="form-control " readonly>
+    <input type="hidden" name="grup_penjualan" value="<?php echo date('ymdHis')?>_<?php echo $this->session->userdata('id_admin')?>" class="form-control " readonly>
   </div>
 
 </div>
@@ -381,22 +384,22 @@ $( function() {
 
        
                   
-       var pilih_satuan = "<select name='satuan_jual["+ii+"]' class='form-control' id='pilihSatuan' onchange='gantiHarga("+ui.item.harga_retail+","+ui.item.harga_lusin+","+ui.item.harga_koli+","+ui.item.jum_per_koli+","+ui.item.jum_per_lusin+",$(this))'>"+
+       var pilih_satuan = "<select name='satuan_jual[]' class='form-control' id='pilihSatuan' onchange='gantiHarga("+ui.item.harga_retail+","+ui.item.harga_lusin+","+ui.item.harga_koli+","+ui.item.jum_per_koli+","+ui.item.jum_per_lusin+",$(this))'>"+
                           option+
                          "</select>";
 
         var jum_batas = "<input id='jum_per_koli' type='hidden' value='"+ui.item.jum_per_koli+"'>"+
                         "<input id='jum_per_lusin' type='hidden' value='"+ui.item.jum_per_lusin+"'>"+
-                        "<input id='id_barang' name='id_barang["+ii+"]' type='hidden' value='"+ui.item.value+"'>";
+                        "<input id='id_barang' name='id_barang[]' type='hidden' value='"+ui.item.value+"'>";
 
         var template = "<tr>"+                
                 "<td>"+jum_batas+ui.item.value+"</td><td id='stoknya'>"+ui.item.stok+"</td><td id='nama_barang'>"+ui.item.label+"</td>"+
                 "<td>"+pilih_satuan+"</td>"+
                 "<td align='right'>"+
-                  "<input  id='t4_harga' class='form-control' readonly name='harga_jual["+ii+"]' value='"+formatRupiah(ui.item.harga_retail)+"'>"+
+                  "<input  id='t4_harga' class='form-control' readonly name='harga_jual[]' value='"+formatRupiah(ui.item.harga_retail)+"'>"+
                 "</td>"+
                 "<td>"+
-                "<input class='form-control' type='number' id='jumlah_beli' name='jumlah["+ii+"]'  placeholder='qty' required value='1' >"+
+                "<input class='form-control' type='number' id='jumlah_beli' name='jumlah[]'  placeholder='qty' required value='1' >"+
                 "</td>"+
                 "<td align='right' id='t4_sub_total'>"+ui.item.harga_retail+"</td>"+
                           

@@ -97,8 +97,11 @@
       </tbody>
   </table>
 </div>
-
+<?php
+    if ($this->session->userdata('level') == '1') {
+    ?>
 <a href="<?php echo(base_url())?>index.php/barang/data_xl" target="blank" class="btn btn-primary">Excel</a>
+<?php } ?>
 
         </div>
         

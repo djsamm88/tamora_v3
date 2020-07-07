@@ -41,8 +41,8 @@ font-size:10px;
 	<td>: <?php echo $data[0]->hp_pembeli?></td>	
 </tr>
 <tr>	
-	<td>Packing</td>
-	<td>: <?php echo $data[0]->nama_packing?></td>	
+	<td>No.TRX</td>
+	<td>: <?php echo $data[0]->grup_penjualan?></td>	
 </tr>
 <tr>
 	<td>Kasir</td>

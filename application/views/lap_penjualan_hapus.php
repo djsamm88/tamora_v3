@@ -58,7 +58,7 @@
               <th>Transport Ke Ekspedisi</th>                     
               <th>Saldo</th>                     
               <th>Total</th>                     
-              <th>Struk</th>                     
+              <th>Action</th>                     
               
               
         </tr>
@@ -87,7 +87,7 @@
                 <td align=right>".rupiah($x->transport_ke_ekspedisi)."</td>                
                 <td align=right>".rupiah($x->saldo)."</td>                
                 <td align=right>".rupiah($total)."</td>                
-                <td><a href='".base_url()."index.php/barang/struk_penjualan/".$x->grup_penjualan."' target='blank'>Print</a></td>                                
+                <td><button class='btn btn-danger btn-xs' onclick='hapus(\"$x->grup_penjualan\",\"$x->saldo\")'>Hapus</button></td>     
               </tr>
           ");
           
@@ -132,6 +132,25 @@ $('.datepicker').datepicker({
   format: 'yyyy-mm-dd' 
 })
 
+
+function hapus(grup_penjualan,saldo)
+{
+    if(saldo>0)
+    {
+        alert("Anda tidak bisa menghapus trx ini, karena ada saldo member tertampak.")
+    }else{
+        if(confirm("Anda yakin menghapus penjualan "+grup_penjualan+" ?"))
+        {
+            $.get("<?php echo base_url()?>index.php/barang/go_hapus/"+grup_penjualan,function(e){
+                console.log(e);
+                alert(e);
+                var mulai   = $("#mulai").val();
+                var selesai  = $("#selesai").val();
+                eksekusi_controller('<?php echo base_url()?>index.php/barang/lap_penjualan_hapus/?mulai='+mulai+'&selesai='+selesai,'Laporan Penjualan');
+            })   
+        }
+    }
+}
 
 $("#go_trx_jurnal").on("submit",function(){
     var mulai   = $("#mulai").val();
