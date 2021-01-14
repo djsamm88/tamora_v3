@@ -218,11 +218,11 @@ class Barang extends CI_Controller {
 			$serialize['nama_ekspedisi']		= $data['nama_ekspedisi'];
 			$serialize['alamat']				= $data['alamat'];
 			
-			$serialize['province_id']		= $data['province_id'];
-			$serialize['city_id']			= $data['city_id'];
-			$serialize['subdistrict_id']	= $data['subdistrict_id'];
-			$serialize['courier']			= $data['courier'];
-			$serialize['service']			= $data['service'];
+			$serialize['province_id']		= @$data['province_id'];
+			$serialize['city_id']			= @$data['city_id'];
+			$serialize['subdistrict_id']	= @$data['subdistrict_id'];
+			$serialize['courier']			= @$data['courier'];
+			$serialize['service']			= @$data['service'];
 			$serialize['berat_total']		= hanya_nomor($data['total_berat']);
 			
 			
