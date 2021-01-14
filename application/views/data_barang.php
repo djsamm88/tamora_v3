@@ -48,7 +48,7 @@
               <th>Jumlah / Lusin</th>                     
               <th>Jumlah / Koli</th>                     
               <th>Reminder Gudang</th>                     
-              <th>Berat (Kg)</th>                     
+              <th>Berat (Gram)</th>                     
               <th>Gambar</th>                     
               <th>Action</th>                     
               
@@ -175,8 +175,8 @@
             </div>
             <div style="clear: both;"></div><br>
 
-        <div class="col-sm-4">Berat</div>
-            <div class="col-sm-8"><input type="number" name="berat" id="berat" class="form-control" placeholder="Berat (KG) ex: 0.1" min="0" pattern="[0-9]+([\,|\.][0-9]+)?" step="0.01" ></div>
+        <div class="col-sm-4">Berat (Gram)</div>
+            <div class="col-sm-8"><input type="number" name="berat" id="berat" class="form-control" placeholder="Berat (Gram) ex: 0.1" min="0" pattern="[0-9]+([\,|\.][0-9]+)?" step="0.01" ></div>
             <div style="clear: both;"></div><br>
 
 

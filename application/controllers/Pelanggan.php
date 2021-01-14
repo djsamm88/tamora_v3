@@ -63,6 +63,8 @@ class Pelanggan extends CI_Controller {
 	{
 		$data = $this->input->post();
 
+		$data['alamat'] = $data['alamat_lengkap']." - ".$data['alamat'];
+		unset($data['alamat_lengkap']);
 		/********* insert pelanggan ************/
 		$arrPelanggan = array(				
 				"tgl_daftar" 	=>date('Y-m-d H:i:s')
@@ -119,8 +121,18 @@ class Pelanggan extends CI_Controller {
 			$serialize['jum_per_koli']	= $barang->jum_per_koli;
 			$serialize['harga_beli']	= $barang->harga_pokok;
 			$serialize['id_gudang']		= '1';
-			
 
+			$serialize['harga_ekspedisi']		= hanya_nomor($data['ongkir']);
+			$serialize['nama_ekspedisi']		= $data['nama_ekspedisi'];
+			$serialize['alamat']				= $data['alamat'];
+			
+			$serialize['province_id']		= $data['province_id'];
+			$serialize['city_id']			= $data['city_id'];
+			$serialize['subdistrict_id']	= $data['subdistrict_id'];
+			$serialize['courier']			= $data['courier'];
+			$serialize['service']			= $data['service'];
+			$serialize['berat_total']		= hanya_nomor($data['total_berat']);
+			
 
 			$serialize['jumlah'] = $data['jumlah'][$key];
 

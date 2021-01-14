@@ -49,6 +49,11 @@ font-size:10px;
 	<td>: <?php echo $data[0]->nama_admin?></td>	
 </tr>
 
+<tr>
+	<td>Alamat</td>
+	<td>: <?php echo $data[0]->alamat?></td>	
+</tr>
+
 </table>
 <hr style="border-top: dotted 1px;" />
 <center>Daftar Belanja</center>
@@ -97,7 +102,7 @@ font-size:10px;
 			<td align=right><b>".rupiah($data[0]->diskon)."</b></td>
 		</tr>
 		<tr>
-			<td colspan=5 align=right>Ekspedisi [".$data[0]->nama_ekspedisi."]</td>
+			<td colspan=5 align=right>Ekspedisi [".$data[0]->nama_ekspedisi."] - [".strtoupper($data[0]->courier)."]</td>
 			<td align=right><b>".rupiah($data[0]->harga_ekspedisi)."</b></td>
 		</tr>
 		<tr>

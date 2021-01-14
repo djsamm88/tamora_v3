@@ -59,11 +59,13 @@
         <tr>
               
               <th width="10px">Id</th>                                                      
-              <th>Barang</th>                                   
+              <th>Barang</th>                                                                                  
+              <th>Berat</th>                                                                                  
               <th>Satuan</th>                                   
               <th>Harga</th>                                                 
               <th>Qty</th>
               <th>Sub Total</th>
+              <th>Sub Berat(g)</th>  
               <th>-</th>                                          
                               
               
@@ -75,8 +77,50 @@
       </tbody>
       <tfoot>
 
+
         <tr>
-          <td colspan="5" align="right"><b>Saldo</b></td>
+          
+          <td colspan="7" align="right"><b></b></td>
+          <td  align="right" >
+
+              <input type="text" name="total_berat" class="form-control" readonly="" id="total_berat" style="text-align: right;"><small>gram</small>
+          </td>
+          <td></td>
+        </tr>
+
+        <tr>
+
+          <td colspan="6" align="right"><b>Ekspedisi</b></td>
+          <td  align="right" >
+            
+            <select class="form-control" id="province_id" name="province_id">              
+            </select>
+            <select class="form-control" id="city_id" name="city_id">              
+            </select>
+            <select class="form-control" id="subdistrict_id" name="subdistrict_id">              
+            </select>
+            <select class="form-control" id="courier" name="courier">              
+            </select>
+
+            <select class="form-control" id="service" name="service">              
+            </select>
+
+            <input id="ongkir" type="text" name="ongkir" class="form-control nomor" style="text-align:right;" readonly>
+
+            <textarea class="form-control" id="alamat_lengkap" name="alamat_lengkap" placeholder="alamat lengkap"></textarea>
+            
+            <input type="hidden" id="t4_service" name="nama_ekspedisi">
+            <input type="hidden" id="t4_alamat_lengkap" name="alamat">
+
+
+          </td>
+          <td></td>
+        </tr>
+
+
+
+        <tr>
+          <td colspan="6" align="right"><b>Saldo</b></td>
           <td  align="right" >
             <input id="t4_saldo" type="text" name="saldo" class="form-control nomor" value="<?php echo $pelanggan->saldo?>" style="text-align:right;" readonly>
           </td>
@@ -85,8 +129,9 @@
 
 
 
+
         <tr>
-          <td colspan="5" align="right"><b>Total</b></td>
+          <td colspan="6" align="right"><b>Total</b></td>
           <td id="t4_total" align="right" style="font-weight: bold;"></td><td></td>
         </tr>
 
@@ -144,7 +189,150 @@ $("#nama_ekspedisi").on("change",function(){
   })
 })
 
+/********* ongkir ********/
+$(document).ready(function(){
+  list_province();
+})
+function list_province()
+{
+  $.get("<?php echo base_url()?>index.php/ongkir/list_province",function(e){
+      //console.log(e.rajaongkir.results);
+      $("#province_id").empty();
+      $("#province_id").append("<option value=''>--- Provinsi ---</option>");
+      $.each(e.rajaongkir.results,function(key,val){
+          
+          $("#province_id").append("<option value='"+val.province_id+"'>"+val.province+"</option>");
 
+      })
+  })
+}
+
+$("#province_id").on("change",function(e){
+  total();
+  var province_id = $(this).val();
+  console.log("province_id:"+province_id);
+  list_city(province_id);
+  $("#subdistrict_id").empty();
+  $("#courier").empty();
+  $("#service").empty();
+  $("#ongkir").val("");
+})
+
+function list_city(province_id)
+{
+  $.get("<?php echo base_url()?>index.php/ongkir/list_city/"+province_id,function(e){
+      //console.log(e.rajaongkir.results);
+      $("#city_id").empty();
+      $("#city_id").append("<option value=''>--- Kota/Kab ---</option>");
+      $.each(e.rajaongkir.results,function(key,val){
+          
+          $("#city_id").append("<option value='"+val.city_id+"'>"+val.city_name+"</option>");
+      })
+  })
+}
+
+$("#city_id").on("change",function(e){
+  total();
+  var city_id = $(this).val();
+  console.log("city:"+city_id);
+  list_subdistrict(city_id);
+  $("#subdistrict_id").empty();
+  $("#courier").empty();
+  $("#service").empty();
+  $("#ongkir").val("");
+})
+
+function list_subdistrict(city_id)
+{
+  $.get("<?php echo base_url()?>index.php/ongkir/list_subdistrict/"+city_id,function(e){
+      //console.log(e.rajaongkir.results);
+      $("#subdistrict_id").empty();
+      $("#subdistrict_id").append("<option value=''>--- Kecamatan ---</option>");
+      $.each(e.rajaongkir.results,function(key,val){
+          
+          $("#subdistrict_id").append("<option value='"+val.subdistrict_id+"'>"+val.subdistrict_name+"</option>");
+      })
+  }) 
+}
+
+
+$("#subdistrict_id").on("change",function(e){
+  total();
+  var subdistrict_id = $(this).val();
+  console.log("subdistrict_id:"+subdistrict_id);
+  list_courier();
+
+  $("#courier").empty();
+  $("#service").empty();
+  $("#ongkir").val("");
+})
+
+function list_courier()
+{
+  $.get("<?php echo base_url()?>index.php/ongkir/list_kurir/",function(e){
+      //console.log(e.rajaongkir.results);
+      $("#courier").empty();
+      $("#courier").append("<option value=''>--- Kurir ---</option>");
+      $.each(e,function(key,val){          
+          $("#courier").append("<option value='"+val+"'>"+val+"</option>");
+      })
+  }) 
+}
+
+$("#courier").on("change",function(){
+  total();
+  
+  var weight = buang_titik($("#total_berat").val());//disini nanti berat gram
+  var origin = "1558";
+  var originType = "subdistrict";
+  var destination = $("#subdistrict_id").val();
+  var destinationType = "subdistrict";
+  var courier = $(this).val();
+
+  var all = {
+              weight:weight,
+              origin:origin,
+              originType:originType,
+              destination:destination,
+              destinationType:destinationType,
+              courier:courier
+            };
+  $.get("<?php echo base_url()?>index.php/ongkir/cost/",all,function(e){
+
+      $("#ongkir").empty();
+      $("#ongkir").val("");
+      $("#service").empty();
+      $("#service").append("<option value=''>--- Layanan ---</option>");
+      $.each(e,function(key,val){          
+          console.log(val);  
+
+          $("#t4_alamat_lengkap").val(val.destination_details.province+", "+val.destination_details.type+" "+val.destination_details.city+", Kec."+val.destination_details.subdistrict_name);
+
+
+          $.each(val.results,function(x,y){
+            
+
+            $.each(y.costs,function(a,b){
+              //console.log(b);
+              var layanan = b.description+" | "+b.service;
+              $("#service").append("<option value='"+b.cost[0].value+"'>"+layanan+"</option>");
+              
+            })
+          })        
+      })
+      
+  }) 
+
+})
+
+$("#service").on("change",function(){
+  total();
+  var ongkir  = $(this).val();
+  var desc    =  $(this).find('option:selected').text();
+  $("#t4_service").val(desc);
+  $("#ongkir").val(formatRupiah(ongkir));
+})
+/********* ongkir ********/
 
 
 $( function() {
@@ -169,6 +357,7 @@ $( function() {
                         jum_per_koli: obj.jum_per_koli, 
                         jum_per_lusin: obj.jum_per_lusin, 
                         reminder: obj.reminder, 
+                        berat:obj.berat
                     };
                 }));
                 
@@ -178,7 +367,7 @@ $( function() {
     var ii=0;
     $( ".barang" ).autocomplete({
       source: semuaBarang,
-      minLength: 2,
+      minLength: 1,
 
       select: function(event, ui) {
         console.log(ui);        
@@ -231,7 +420,10 @@ $( function() {
                         "<input id='id_barang' name='id_barang["+ii+"]' type='hidden' value='"+ui.item.value+"'>";
 
         var template = "<tr>"+                
-                "<td>"+jum_batas+ui.item.value+"</td><td>"+ui.item.label+"</td>"+
+                "<td>"+jum_batas+ui.item.value+"</td>"+
+
+                "<td>"+ui.item.label+"</td>"+                
+                "<td align='right' id='t4_berat'>"+ui.item.berat+"</td>"+
                 "<td>"+pilih_satuan+"</td>"+
                 "<td align='right'>"+
                   "<input  id='t4_harga' class='form-control' readonly name='harga_jual["+ii+"]' value='"+formatRupiah(ui.item.harga_retail)+"'>"+
@@ -240,9 +432,9 @@ $( function() {
                 "<input class='form-control' type='number' id='jumlah_beli' name='jumlah["+ii+"]'  placeholder='qty' required value='1'>"+
                 "</td>"+
                 "<td align='right' id='t4_sub_total'>"+ui.item.harga_retail+"</td>"+
-                          
-                          
-                  "<td><button class='btn btn-danger btn-xs' id='remove_order' type='button'>Hapus</button></td></tr>"
+                "<td align='right' id='t4_sub_berat'>"+ui.item.berat+"</td>"+
+                "<td><button class='btn btn-danger btn-xs' id='remove_order' type='button'>Hapus</button></td></tr>"
+                
                           ;
                   $("#t4_order").append(template);
                   $(".barang").val("");
@@ -296,6 +488,7 @@ function gantiHarga(a,b,c,d,e,ini)
   t4_harga.val(formatRupiah(ret));
 
   sub_total(jumlah_beli);
+  sub_total_berat(jumlah_beli);
   
 }
 
@@ -340,6 +533,7 @@ $("#tbl_datanya").on("keydown keyup mousedown mouseup select contextmenu drop","
 
 
   sub_total($(this));  
+  sub_total_berat($(this));
   
 
 })
@@ -348,7 +542,7 @@ $("#tbl_datanya").on("keydown keyup mousedown mouseup select contextmenu drop","
 
 
 
-$("#t4_diskon,#nama_ekspedisi,#t4_transport_ke_ekspedisi,#t4_ekspedisi,.barang,#nama_pembeli").on("keydown keyup mousedown mouseup select contextmenu drop",function(){
+$("body,#t4_diskon,#nama_ekspedisi,#t4_transport_ke_ekspedisi,#t4_ekspedisi,.barang,#nama_pembeli,#alamat_lengkap,#alamat").on("keydown keyup mousedown mouseup select contextmenu drop",function(){
     total();
 })
 
@@ -379,6 +573,15 @@ function sub_total(ini)
     total();
 }
 
+function sub_total_berat(ini)
+{
+  var qty = ini.val() || 0;
+  var berat = buang_titik(ini.parent().parent().find("#t4_berat").text()) || 0;
+  var sub_total_berat = parseInt(qty)*parseInt(berat);
+  ini.parent().parent().find("#t4_sub_berat").html(formatRupiah(sub_total_berat)); 
+  total();
+}
+
 
 function total()
 {
@@ -389,11 +592,21 @@ function total()
   })
   console.log(total);
 
-  var saldo  = parseInt(buang_titik($("#t4_saldo").val()));
-
+  var saldo  = parseInt(buang_titik($("#t4_saldo").val())) || 0;
+  var ongkir = parseInt(buang_titik($("#ongkir").val())) || 0;
+  total+=ongkir;
   total-=saldo;
   $("#t4_total").html(formatRupiah(total));
 
+
+
+  //berat
+  var tot_berat = 0;
+  $("tbody#t4_order tr td#t4_sub_berat").each(function(){
+     tot_berat+= parseInt(buang_titik($(this).text()));
+
+  })
+  $("#total_berat").val(formatRupiah(tot_berat));
 
 }
 
@@ -409,7 +622,7 @@ $("#penjualan_barang").on("submit",function(){
   if(confirm("Anda yakin selesai?"))
   {
    
-    $.post("<?php echo base_url()?>index.php/"+classnya+"/go_pesan",$(this).serialize(),function(x){
+    $.post("<?php echo base_url()?>index.php/pelanggan/go_pesan",$(this).serialize(),function(x){
       console.log(x);
       eksekusi_controller('<?php echo base_url()?>index.php/pelanggan/pesanan_member','Pesanan Member');
       notif_member();

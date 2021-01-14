@@ -38,6 +38,7 @@
               <th>Kode Trx.</th>                     
               <th>Kepada</th>                     
               <th>Sub Total</th>                     
+              <th>Ongkir</th>                                   
               <th>Saldo</th>                                   
               <th>Total</th>                     
               <th>Bukti Transfer</th>                     
@@ -64,6 +65,7 @@
                 <td>$x->grup_penjualan</td>                
                 <td>$x->nama_pembeli -[ $x->id_pelanggan ]</td>                
                 <td align=right>".rupiah($x->total)."</td>                
+                <td align=right>".rupiah($x->harga_ekspedisi)."</td>                
                 <td align=right>".rupiah($x->saldo)."</td>                                
                 <td align=right>".rupiah($x->total-$x->saldo-$x->diskon+($x->harga_ekspedisi+$x->transport_ke_ekspedisi))."</td>                
                 <td>$url_bukti</td>

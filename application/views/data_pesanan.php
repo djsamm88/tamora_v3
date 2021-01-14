@@ -37,6 +37,7 @@
               <th>Kode Trx.</th>                                              
               <th>Saldo</th>                                                   
               <th>Sub Total</th>                                                   
+              <th>Ongkir</th>                                                   
               <th>Total</th>                     
               <th>Status</th>                     
               <th>Bukti Transfer</th>                     
@@ -63,6 +64,7 @@
                 <td>$x->grup_penjualan</td>                                
                 <td align=right>".rupiah($x->saldo)."</td>                                
                 <td align=right>".rupiah($x->total)."</td>                                
+                <td align=right>".rupiah($x->harga_ekspedisi)."</td>                                
                 <td align=right>".rupiah($x->total-$x->saldo-$x->diskon+($x->harga_ekspedisi+$x->transport_ke_ekspedisi))."</td>                
                 <td>
                  <span class='label label-warning'>Menunggu</span>
@@ -224,8 +226,9 @@ function lihat_detail(grup_penjualan)
   $("#t4_produk").empty();
   $.get("<?php echo base_url()?>index.php/barang/pesanan_by_group/"+grup_penjualan,function(e){
       console.log(e);
-      var temp = 
+      i=0;
       $.each(e,function(a,b){
+        i++;
         console.log(b);
         var template = "<li class='item'>"+
                       "<div class='product-img'>"+formatRupiah(b.harga_jual)+"</div>"+
@@ -234,10 +237,21 @@ function lihat_detail(grup_penjualan)
                           "<span class='label label-warning pull-right'>"+formatRupiah(b.sub_total_jual)+"</span></a>"+
                           "<span class='product-description'>"+b.nama_barang+"</span>"+
                       "</div>"+
-                    "</li>";
+                    "</li>"                                        
+                    ;
+        
+
 
             $("#t4_produk").append(template);
       })
+
+      if(i>0)
+      {
+        var desk_ongkir = "<br><hr>Ongkir : "+formatRupiah(e[0].harga_ekspedisi) +" - "+e[0].nama_ekspedisi+
+                    "<br><small>Alamat : "+e[0].alamat+"</small>";
+        $("#t4_produk").append(desk_ongkir);
+      }
+
       $("#myModalDetail").modal('show');
   })
   return false;

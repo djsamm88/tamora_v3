@@ -145,7 +145,8 @@ class Barang extends CI_Controller {
 	public function go_jual()
 	{
 		$data = $this->input->post();
-
+		$data['alamat'] = $data['alamat_lengkap']." - ".$data['alamat'];
+		unset($data['alamat_lengkap']);
 
 		/********* insert pelanggan ************/
 		$arrPelanggan = array(
@@ -194,7 +195,7 @@ class Barang extends CI_Controller {
 			$serialize['nama_pembeli'] 	= $data['nama_pembeli'];
 			$serialize['hp_pembeli'] 	= $data['hp_pembeli'];
 			
-			$serialize['nama_packing'] 	= $data['nama_packing'];
+			
 			$serialize['tgl_trx_manual']= $data['tgl_trx_manual'];
 			$serialize['keterangan']	= $data['keterangan'];
 
@@ -202,9 +203,8 @@ class Barang extends CI_Controller {
 			$serialize['saldo'] 		= hanya_nomor($data['saldo']);
 
 			$serialize['bayar'] 		= hanya_nomor($data['bayar']);
-			$serialize['transport_ke_ekspedisi'] = hanya_nomor($data['transport_ke_ekspedisi']);
-			$serialize['harga_ekspedisi'] 		 = hanya_nomor($data['harga_ekspedisi']);
-			$serialize['nama_ekspedisi'] 		 = ($data['nama_ekspedisi']);
+			$serialize['transport_ke_ekspedisi'] = hanya_nomor($data['transport_ke_ekspedisi']);			
+			
 			
 			$serialize['sub_total_jual']= $serialize['harga_jual']*$data['jumlah'][$key];
 			$serialize['sub_total_beli']= $barang->harga_pokok*$data['jumlah'][$key];
@@ -212,6 +212,19 @@ class Barang extends CI_Controller {
 			$serialize['jum_per_koli']	= $barang->jum_per_koli;
 			$serialize['harga_beli']	= $barang->harga_pokok;
 			$serialize['id_gudang']		= '1';
+
+
+			$serialize['harga_ekspedisi']		= hanya_nomor($data['harga_ekspedisi']);
+			$serialize['nama_ekspedisi']		= $data['nama_ekspedisi'];
+			$serialize['alamat']				= $data['alamat'];
+			
+			$serialize['province_id']		= $data['province_id'];
+			$serialize['city_id']			= $data['city_id'];
+			$serialize['subdistrict_id']	= $data['subdistrict_id'];
+			$serialize['courier']			= $data['courier'];
+			$serialize['service']			= $data['service'];
+			$serialize['berat_total']		= hanya_nomor($data['total_berat']);
+			
 			
 
 
@@ -235,7 +248,7 @@ class Barang extends CI_Controller {
 		$ket = "Kpd: [".$data['nama_pembeli']."] - Kode TRX:[".$data['grup_penjualan']."] 
 				Jumlah:[".rupiah($total_tanpa_diskon)."] 
 				diskon:[".$data['diskon']."] 
-				harga_ekspedisi:[".$data['harga_ekspedisi']."] 
+				harga_ekspedisi:[".$serialize['harga_ekspedisi']."] 
 				transport_ke_ekspedisi:[".$data['transport_ke_ekspedisi']."] 
 				".$data['keterangan'];
 

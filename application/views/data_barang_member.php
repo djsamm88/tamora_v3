@@ -64,7 +64,9 @@
                 <td>$no</td>
                 <td>$x->id</td>
                 <td>$x->nama_barang</td>                                                                           
-                <td><a target='blank' href='".base_url()."uploads/$x->gambar'>$x->gambar</a></td>                           
+                <td>
+                  <img src='".base_url()."uploads/$x->gambar' width='100px' height='100px'>
+                  </td>                           
                 
               </tr>
           ");
