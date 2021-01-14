@@ -12,7 +12,8 @@ class M_login extends CI_Model {
 	public function cek_user($user,$pass) {
 		
 		//$query = $this->db->query("SELECT * FROM tbl_admin  WHERE (user_admin='$user' AND pass_admin='$pass') OR (email_admin='$user' AND pass_admin='$pass')");
-
+        $user = iconv(mb_detect_encoding($user, mb_detect_order(), true), "UTF-8", $user);
+        $pass = iconv(mb_detect_encoding($pass, mb_detect_order(), true), "UTF-8", $pass);
 		$query = $this->db->query("
 					SELECT * FROM 
 						(
@@ -34,7 +35,7 @@ class M_login extends CI_Model {
 								email_pembeli AS email_admin,
 								email_pembeli AS user_admin,
 								nama_pembeli AS nama_admin,
-								MD5(password) AS pass_admin,
+								CONVERT(MD5(password) USING utf8) AS pass_admin,
 								'5' AS level,
 								'1' AS status_admin
 
