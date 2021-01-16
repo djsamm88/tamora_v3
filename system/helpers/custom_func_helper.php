@@ -38,7 +38,8 @@ function level($int)
 			'2' => "Keuangan", 
 			'3' => "Kasir", 
       '4' => "Gudang", 
-			'5' => "Member" 
+      '5' => "Member" ,
+			'6' => "Costumer Service" 
 			);
 	return $a[$int];
 }

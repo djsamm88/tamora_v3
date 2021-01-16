@@ -64,6 +64,7 @@ class Pengeluaran_bulanan extends CI_Controller {
 		$data = $this->input->post();
 		//var_dump($data);		
 		$data['jumlah'] = hanya_nomor($data['jumlah']);
+		$data['url_bukti'] = upload_file('url_bukti');
 
 		$this->db->set($data);
 		$this->db->insert('tbl_pengeluaran_bulanan_transaksi');

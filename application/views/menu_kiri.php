@@ -163,6 +163,13 @@
             </li>
 
             
+            <li>
+              <a href="#" onclick="eksekusi_controller('<?php echo base_url()?>index.php/barang/return_list_suplier','Return Barang');return false;">
+                <i class="fa fa-link"></i> <span>Return Suplier</span>
+              </a>
+            </li>
+
+            
           </ul>
         </li>
 
@@ -553,6 +560,7 @@
 
 
         <?php 
+          //member
           if($this->session->userdata('level')=='5')
           {?>
 
@@ -590,7 +598,92 @@
         <?php }?>
 
 
+
+        <?php 
+          //customer service
+          if($this->session->userdata('level')=='6')
+          {?>
+             <li>
+              <a href="#" onclick="eksekusi_controller('<?php echo base_url()?>index.php/barang/data','Master Barang');return false;">
+                <i class="fa fa-link"></i> <span>Data Barang</span>
+              </a>
+            </li>
+
+
+
+
+        <li class="treeview">
+          
+          <a href="#"><i class="fa fa-retweet"></i> <span>Return Barang</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+            <ul class="treeview-menu">
+            <li>
+              <a href="#" onclick="eksekusi_controller('<?php echo base_url()?>index.php/barang/return_barang','Return Barang');return false;">
+                <i class="fa fa-link"></i> <span>Return Barang</span>
+              </a>
+            </li>
+
+
+            <li>
+              <a href="#" onclick="eksekusi_controller('<?php echo base_url()?>index.php/barang/return_list_suplier','Return Barang');return false;">
+                <i class="fa fa-link"></i> <span>Return Suplier</span>
+              </a>
+            </li>
+
+
+
+          </ul>
+        </li>
+
+
+
+
+
+
+        <li class="treeview">
+          
+          <a href="#"><i class="fa fa-retweet"></i> <span>Pengeluaran Bulanan</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+
+          <ul class="treeview-menu">
+             <li>
+              <a href="#" onclick="eksekusi_controller('<?php echo base_url()?>index.php/pengeluaran_bulanan/data','Master Pengeluaran');return false;">
+                <i class="fa fa-link"></i> <span>Data Pengeluaran</span>
+              </a>
+            </li>
+
+            
+             <li>
+              <a href="#" onclick="eksekusi_controller('<?php echo base_url()?>index.php/pengeluaran_bulanan/form_pengeluaran_bulanan','Form Transaksi');return false;">
+                <i class="fa fa-link"></i> <span>Transaksi</span>
+              </a>
+            </li>
+
+
+             <li>
+              <a href="#" onclick="eksekusi_controller('<?php echo base_url()?>index.php/pengeluaran_bulanan/trx_pengeluaran_bulanan','Transaksi Pengeluaran');return false;">
+                <i class="fa fa-link"></i> <span>Lap.Pengeluaran</span>
+              </a>
+            </li>
+
+            
+          </ul>
+        </li>
+
+
+
+
+
         
+        <?php }?>
+
+
         
         <li>
           <a href="#">

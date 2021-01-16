@@ -40,6 +40,7 @@
                 <th>Jumlah</th>
                 <th>Oleh</th>
                 <th>Catatan</th>
+                <th>Aksi</th>
               
               
         </tr>
@@ -52,6 +53,8 @@
 
           $no++;
 
+          $btn = "<a href='".base_url()."index.php/barang/struk_log_pindah_gudang/$x->id' target='_blank'>Cetak</a>";
+
             echo (" 
               
               <tr>
@@ -63,6 +66,7 @@
                 <td>$x->jumlah</td>
                 <td>$x->nama_admin</td>
                 <td>$x->catatan</td>
+                <td>$btn</td>
                 
               </tr>
           ");

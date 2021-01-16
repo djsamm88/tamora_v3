@@ -365,6 +365,27 @@ if (!defined('BASEPATH'))exit('No direct script access allowed');
 	}
 
 
+	public function m_return_barang_suplier($kondisi=null)
+	{
+		if($kondisi==null)
+		{
+			$where = "";
+		}else{
+			$where = " AND a.kondisi='$kondisi'";
+		}
+
+		$q = $this->db->query("SELECT a.*,a.status AS posisi,a.id AS id_ret ,b.*,c.*,d.nama_gudang
+								FROM tbl_barang_return a
+								LEFT JOIN tbl_barang b ON a.id_barang=b.id
+								LEFT JOIN tbl_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+								LEFT JOIN tbl_gudang d ON a.id_gudang=d.id_gudang
+								WHERE a.status='suplier' $where
+								ORDER BY a.id DESC
+					");
+		return $q->result();
+	}
+
+
 	public function m_return_ke_suplier()
 	{
 
@@ -373,13 +394,24 @@ if (!defined('BASEPATH'))exit('No direct script access allowed');
 								LEFT JOIN tbl_barang b ON a.id_barang=b.id
 								LEFT JOIN tbl_pelanggan c ON a.id_pelanggan=c.id_pelanggan
 								LEFT JOIN tbl_gudang d ON a.id_gudang=d.id_gudang
-								WHERE status='toko' 
+								WHERE a.status='toko' 
 								ORDER BY a.id DESC
 					");
 		return $q->result();
 	}
 
-
+	public function history_suplier()
+	{
+		$q = $this->db->query("SELECT a.*,a.status AS posisi,a.id AS id_ret ,b.*,c.*,d.nama_gudang
+								FROM tbl_barang_return a
+								LEFT JOIN tbl_barang b ON a.id_barang=b.id
+								LEFT JOIN tbl_pelanggan c ON a.id_pelanggan=c.id_pelanggan
+								LEFT JOIN tbl_gudang d ON a.id_gudang=d.id_gudang
+								WHERE a.status='barang_baru' OR a.status='uang_kembali' OR a.status='buang' 
+								ORDER BY a.id DESC
+					");
+		return $q->result();
+	}
 
 	public function m_history($id_paket,$id_jamaah)
 	{
@@ -637,10 +669,12 @@ public function m_pesanan_member($id_pelanggan='')
 	}
 
 
+
+
 	public function m_log_pindah_gudang()
 	{
 		$q = $this->db->query("
-							SELECT a.tgl,a.jumlah,a.catatan,
+							SELECT a.id,a.tgl,a.jumlah,a.catatan,
 								   b.nama_gudang AS nama_gudang_lama,
 								   c.nama_gudang AS nama_gudang_baru,
 								   CONCAT(d.id,'#',d.nama_barang) AS nama_barang,
@@ -652,6 +686,26 @@ public function m_pesanan_member($id_pelanggan='')
 								LEFT JOIN tbl_admin e ON a.id_admin=e.id_admin
 							ORDER BY tgl DESC
 
+
+			");
+
+		return $q->result();
+	}
+
+	public function m_log_pindah_gudang_print($id)
+	{
+		$q = $this->db->query("
+							SELECT a.id,a.tgl,a.jumlah,a.catatan,
+								   b.nama_gudang AS nama_gudang_lama,
+								   c.nama_gudang AS nama_gudang_baru,
+								   CONCAT(d.id,'#',d.nama_barang) AS nama_barang,
+								   e.nama_admin
+								FROM tbl_log_pemindahan_gudang a
+								LEFT JOIN tbl_gudang b ON a.id_gudang_lama=b.id_gudang
+								LEFT JOIN tbl_gudang c ON a.id_gudang_baru=c.id_gudang
+								LEFT JOIN tbl_barang d ON a.id_barang=d.id 
+								LEFT JOIN tbl_admin e ON a.id_admin=e.id_admin
+								WHERE a.id='$id'
 
 			");
 

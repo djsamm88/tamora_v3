@@ -256,8 +256,10 @@ $("#form_pindah").on("submit",function(){
 
   $.post("<?php echo base_url()?>index.php/barang/pindah_gudang",ser,function(x){
     console.log(x);
-    
+     window.open("<?php echo base_url()?>index.php/barang/struk_log_pindah_gudang/"+x);
       $("#t4_info_form").html("<div class='alert alert-success'>Berhasil.</div>").fadeIn().delay(3000).fadeOut();
+      
+      
       notif();
       setTimeout(function(){
         $("#myModal").modal('hide');

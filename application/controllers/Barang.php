@@ -516,6 +516,53 @@ class Barang extends CI_Controller {
 		$this->load->view('return_barang',$data);
 	}
 
+	public function return_list_suplier()
+	{
+		$data['all'] = $this->m_barang->m_return_barang_suplier();	
+		$data['all_barang'] = $this->m_barang->m_data();	
+		$data['history_suplier'] = $this->m_barang->history_suplier();	
+		$this->load->view('return_list_suplier',$data);
+	}
+
+	public function barang_baru_dapat_return($id)
+	{
+		$this->db->query("UPDATE tbl_barang_return SET status='barang_baru' WHERE id='$id'");
+		//update masuk barang
+		$q 	= $this->db->query("SELECT id_barang,jumlah,id_gudang FROM tbl_barang_return WHERE id='$id'");
+		$qq 		= $q->result();
+		$qqq 		= $qq[0];
+
+		$id_barang 	= $qqq->id_barang;
+		$qty 		= $qqq->jumlah;
+		$id_gudang 	= $qqq->id_gudang;
+
+		$this->db->query("INSERT INTO tbl_barang_masuk_tanpa_harga SET id_barang='$id_barang',qty='$qty',id_gudang='$id_gudang',status='belum'");
+
+		var_dump($qqq);
+		echo "$id";
+
+	}
+
+
+	public function uang_dapat_return($id)
+	{
+		$this->db->query("UPDATE tbl_barang_return SET status='uang_kembali' WHERE id='$id'");
+		//id_group=19		
+		$q 	= $this->db->query("SELECT * FROM tbl_barang_return WHERE id='$id'");
+		$qq 		= $q->result();
+		$qqq 		= $qq[0];
+		$this->db->query("INSERT INTO tbl_transaksi SET id_group='19',keterangan='Return uang dari suplier - id_barang =  $qqq->id_barang - $qqq->ket', jumlah='$qqq->uang_kembali'");
+	}
+
+
+	public function buang_barang($id)
+	{
+		$this->db->query("UPDATE tbl_barang_return SET status='buang' WHERE id='$id'");
+	}
+
+
+	
+
 	public function cetak_return_by_id($id)
 	{
 		$q = $this->db->query("SELECT a.*,a.id AS id_ret ,b.*,c.*,d.nama_gudang
@@ -634,6 +681,7 @@ class Barang extends CI_Controller {
 		unset($data['uang_kembali']);
 
 		$data['uang_kembali'] = $uang_total;
+		$data['status']='toko';
 
 		$this->db->set($data);
 		$this->db->insert('tbl_barang_return');
@@ -683,6 +731,42 @@ class Barang extends CI_Controller {
 
 	}
 
+
+	public function struk_log_pindah_gudang($id)
+	{
+		
+		$data['all'] = $this->m_barang->m_log_pindah_gudang_print($id);
+		
+
+		//var_dump($staff_arr);
+		$filename = "perpindahan_barang_".$this->router->fetch_class()."_".date('d_m_y_h_i_s');
+		
+		
+		$pdfFilePath = FCPATH."downloads/$filename.pdf";
+		
+    	
+    	
+		if (file_exists($pdfFilePath) == FALSE)
+		{
+			//ini_set('memory_limit','512M'); // boost the memory limit if it's low <img class="emoji" draggable="false" alt="" src="https://s.w.org/images/core/emoji/72x72/1f609.png">
+        	ini_set('memory_limit', '2048M');
+			//$html = $this->load->view('laporan_mpdf/pdf_report', $data, true); // render the view into HTML
+			$html = $this->load->view('struk_log_pindah_gudang.php',$data,true);
+			
+			$this->load->library('pdf_setengah'); 
+			$pdf = $this->pdf_setengah->load();
+			//$this->load->library('pdf');
+			//$pdf = $this->pdf->load();
+
+			$pdf->SetFooter($_SERVER['HTTP_HOST'].'|{PAGENO}|'.date("YmdHis")."_".$this->session->userdata('id_admin')); // Add a footer for good measure <img class="emoji" draggable="false" alt="" src="https://s.w.org/images/core/emoji/72x72/1f609.png">
+			$pdf->WriteHTML($html); // write the HTML into the PDF
+			$pdf->Output($pdfFilePath, 'F'); // save to file because we can
+		}
+		 
+		redirect(base_url()."downloads/$filename.pdf","refresh");
+	}
+
+
 	public function pindah_gudang()
 	{
 		$data = $this->input->post();
@@ -713,7 +797,7 @@ class Barang extends CI_Controller {
 		
 		//catat log
 		$id_admin = $this->session->userdata('id_admin');
-		$this->db->query("INSERT INTO tbl_log_pemindahan_gudang 
+		$x = $this->db->query("INSERT INTO tbl_log_pemindahan_gudang 
 							SET 
 							id_gudang_lama='$id_gudang_lama', 
 							id_gudang_baru='$id_gudang',								
@@ -723,9 +807,12 @@ class Barang extends CI_Controller {
 							id_admin='$id_admin'
 
 						");
-		
+		echo $this->db->insert_id();
+
 			
 	}
+
+
 
 
 	public function lap_penjualan()

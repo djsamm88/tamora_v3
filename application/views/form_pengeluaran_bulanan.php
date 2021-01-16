@@ -58,6 +58,15 @@
             <div style="clear:both"></div><br>
 
 
+
+            <div class="col-sm-4" style="text-align:right">Bukti</div>
+            <div class="col-sm-8">
+              <input class="form-control" name="url_bukti" id="url_bukti" type="file" accept="image/jpeg,image/gif,image/png,application/pdf,image/x-eps" required>
+            </div>
+            <div style="clear:both"></div><br>
+
+
+
             
             <div class="col-sm-12">
                 <div id="t4_info_form"></div>
@@ -91,17 +100,28 @@ hanya_nomor(".nomor");
 $("#form_pengeluarannya").on("submit",function(){
   var ser = $(this).serialize();
 
-  $.post("<?php echo base_url()?>index.php/"+classnya+"/simpan_pengeluaran_bulanan",ser,function(x){
-    console.log(x);
-    if(x=='1')
-    {
-      $("#t4_info_form").html("<div class='alert alert-success'>Berhasil.</div>").fadeIn().delay(3000).fadeOut();
+      $.ajax({
+            url: "<?php echo base_url()?>index.php/"+classnya+"/simpan_pengeluaran_bulanan",
+            type: "POST",
+            contentType: false,
+            processData:false,
+            data:  new FormData(this),
+            beforeSend: function(){
+                //alert("sedang uploading...");
+            },
+            success: function(e){
+                console.log(e);
+                $("#t4_info_form").html("<div class='alert alert-success'>Berhasil.</div>").fadeIn().delay(3000).fadeOut();
+                  setTimeout(function(){
+                    eksekusi_controller('<?php echo base_url()?>index.php/'+classnya+'/trx_pengeluaran_bulanan',document.title);
+                  },3000);
 
-      setTimeout(function(){
-        eksekusi_controller('<?php echo base_url()?>index.php/'+classnya+'/trx_pengeluaran_bulanan',document.title);
-      },3000);
-    }
-  })
+                
+            },
+            error: function(er){
+                $("#t4_info_form").html("<div class='alert alert-warning'>Ada masalah! "+er+"</div>");
+            }           
+       });
 
   return false;
 })

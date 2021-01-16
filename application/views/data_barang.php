@@ -68,6 +68,12 @@
             $x->harga_pokok=0;
             $btn="-";
           }
+
+          if($this->session->userdata('level')=='6')
+          {
+              $btn = "<button class='btn btn-warning btn-xs' onclick='edit($x->id);return false;'>Edit</button>";
+          }
+
             echo (" 
               
               <tr>
@@ -88,6 +94,7 @@
                   $btn
                 </td>
               </tr>
+          
           ");
           
         }
