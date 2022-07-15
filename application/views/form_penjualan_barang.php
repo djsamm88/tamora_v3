@@ -429,6 +429,7 @@ $( function() {
                   //console.log(template);
               ii++;
               //alert(ii);
+              total();
               return false;
         }
 
@@ -481,6 +482,7 @@ function gantiHarga(a,b,c,d,e,f,g,ini)
   t4_harga.val(formatRupiah(ret));
 
   sub_total(jumlah_beli);
+  total();
   
 }
 
