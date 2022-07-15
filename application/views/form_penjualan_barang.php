@@ -2,7 +2,6 @@
 $all_template = ""; 
 $keterangan = ""; 
 $saldo = 0;
-$total_berat=0;
 if(isset($group_penjualan))
 {
   $data = $this->m_barang->m_detail_penjualan($group_penjualan);    
@@ -11,20 +10,18 @@ if(isset($group_penjualan))
   $saldo = rupiah($data[0]->saldo);
   $keterangan = $data[0]->keterangan;
   $z=0;
-  
   foreach ($data as $pend) {
-    $ber = 0;
-    $ber+=$pend->berat*$pend->qty_jual;
-    $total_berat+=$ber;
     $sel_retail = $pend->satuan_jual=='retail'?'selected':'';
     $sel_lusin = $pend->satuan_jual=='lusin'?'selected':'';
     $sel_koli = $pend->satuan_jual=='koli'?'selected':'';
+    $sel_partai = $pend->satuan_jual=='partai'?'selected':'';
 
     $stok = $this->m_barang->m_stok_by_id_barang(1,$pend->id)->result()[0]->qty;
 
     $pilihan = "<option value='retail' $sel_retail>Retail</option>
                 <option value='lusin'  $sel_lusin>Lusin</option>
                 <option value='koli' $sel_koli>Koli</option>
+                <option value='partai' $sel_partai>Partai</option>
                 ";
 
     $class = $pend->qty_jual>$stok?"class='danger'":"";
@@ -33,14 +30,14 @@ if(isset($group_penjualan))
                     <td>
                       <input id='jum_per_koli' type='hidden' value='$pend->jum_per_koli'>
                       <input id='jum_per_lusin' type='hidden' value='$pend->jum_per_lusin'>
+                      <input id='jum_partai' type='hidden' value='$pend->jum_partai'>
                       <input id='id_barang' name='id_barang[]' type='hidden' value='$pend->id'>
                       $pend->id
                     </td>
                     <td id='stoknya'>$stok</td>
                     <td id='nama_barang'>$pend->nama_barang</td>
-                    <td id='t4_berat'>$pend->berat</td>
                     <td>
-                      <select name='satuan_jual[]' class='form-control' id='pilihSatuan' onchange='gantiHarga($pend->harga_retail,$pend->harga_lusin,$pend->harga_koli,$pend->jum_per_koli,$pend->jum_per_lusin,$(this))'>
+                      <select name='satuan_jual[]' class='form-control' id='pilihSatuan' onchange='gantiHarga($pend->harga_retail,$pend->harga_lusin,$pend->harga_koli,$pend->jum_per_koli,$pend->jum_per_lusin,$pend->harga_partai,$pend->jum_partai,$(this))'>
                         $pilihan
                       </select>
                     </td>
@@ -51,8 +48,6 @@ if(isset($group_penjualan))
                       <input class='form-control' type='number' id='jumlah_beli' name='jumlah[]'  placeholder='qty' required value='$pend->qty_jual'>
                     </td>
                     <td align='right' id='t4_sub_total'>".rupiah($pend->sub_total_jual)."</td>
-                    <td align='right' id='t4_sub_berat'>".rupiah($ber)."</td>
-
                     <td>
                       <button class='btn btn-danger btn-xs' id='remove_order' type='button'>Hapus</button>
                     </td>
@@ -112,8 +107,8 @@ if(isset($group_penjualan))
     <small><i>HP Pembeli</i></small>
   </div>
   <div class="col-sm-3">
-    <textarea name="alamat_lengkap" value="<?php echo @$data[0]->alamat?>" class="form-control" placeholder="alamat" id=""><?php echo @$data[0]->alamat?></textarea>
-    <small><i>Alamat</i></small>
+    <input type="text" name="nama_packing" value="<?php echo @$data[0]->nama_packing?>" class="form-control" placeholder="Nama Packing">
+    <small><i>Nama Packing</i></small>
   </div>
   <div class="col-sm-3">
     <input type="text" name="tgl_trx_manual" value="<?php echo date('Y-m-d H:i:s')?>" class="form-control datepicker">
@@ -133,13 +128,11 @@ if(isset($group_penjualan))
               
               <th width="10px">Id</th>           
               <th width="10px">Stok</th>                                   
-              <th>Barang</th>              
-              <th>Berat</th>                      
+              <th>Barang</th>                                   
               <th>Satuan</th>                                   
               <th>Harga</th>                                                 
               <th>Qty</th>
               <th>Sub Total</th>
-              <th>Sub Berat</th>
               <th>-</th>                                          
                               
               
@@ -151,20 +144,8 @@ if(isset($group_penjualan))
       </tbody>
       <tfoot>
 
-
         <tr>
-          
-          <td colspan="8" align="right"><b></b></td>
-          <td  align="right" >
-
-              <input type="text" name="total_berat" class="form-control" readonly  id="total_berat" style="text-align: right;" value="<?php echo($total_berat)?>"><small>gram</small>
-          </td>
-          <td></td>
-        </tr>
-
-
-        <tr>
-          <td colspan="7" align="right"><b>Saldo</b></td>
+          <td colspan="6" align="right"><b>Saldo</b></td>
           <td  align="right" >
             <input id="t4_saldo" type="text" name="saldo" class="form-control nomor" value="<?php echo $saldo?>" style="text-align:right;" readonly>
           </td>
@@ -173,7 +154,7 @@ if(isset($group_penjualan))
 
 
         <tr>
-          <td colspan="7" align="right"><b>Diskon</b></td>
+          <td colspan="6" align="right"><b>Diskon</b></td>
           <td  align="right" >
             <input id="t4_diskon" type="text" name="diskon" class="form-control nomor" value="0" style="text-align:right;">
           </td>
@@ -181,90 +162,44 @@ if(isset($group_penjualan))
         </tr>
 
 
-        <td colspan="7" align="right"><b>Biaya ke ekspedisi</b></td>
+        <td colspan="6" align="right"><b>Biaya ke ekspedisi</b></td>
           <td  align="right" >
             <input id="t4_transport_ke_ekspedisi" type="text" name="transport_ke_ekspedisi" class="form-control nomor" value="0" style="text-align:right;">
           </td>
           <td></td>
         </tr>
         
-        <?php 
-        if($group_penjualan!="")
-        {?>
         <tr>
-          <td colspan="7" align="right"><b>Ekspedisi</b></td>
+          <td colspan="6" align="right"><b>Ekspedisi</b></td>
           <td id="" align="right" >
             <div class="row">
             <div class="col-sm-6">
-              
-              <select class="form-control" id="courier" name="nama_ekspedisi"></select>
-            
+            <select name="nama_ekspedisi" class="form-control" id="nama_ekspedisi">
+                <option value="">--Pilih---</option>
+                <?php 
+                  foreach ($eksepedisi as $eks) {
+                    echo "<option value='$eks->nama_ekspedisi'>$eks->nama_ekspedisi</option>";
+                  }
+                ?>
+              </select>
             </div>
             <div class="col-sm-6">
-              <input id="ongkir" type="text" name="harga_ekspedisi" class="form-control nomor" value="<?php echo @$data[0]->harga_ekspedisi?>" style="text-align:right;" readonly> 
+              <input id="t4_ekspedisi" type="text" name="harga_ekspedisi" class="form-control nomor" value="0" style="text-align:right;">
             </div>
             </div>
-
-
-            
-            
-            <input type="hidden" id="" name="province_id" value="<?php echo @$data[0]->province_id?>">
-            <input type="hidden" id="" name="city_id" value="<?php echo @$data[0]->city_id?>">
-            <input type="hidden" id="" name="subdistrict_id" value="<?php echo @$data[0]->subdistrict_id?>">
-            <input type="hidden" id="" name="courier" value="<?php echo @$data[0]->courier?>">
-            <input type="hidden" id="" name="service" value="<?php echo @$data[0]->service?>">
-            <input type="hidden" id="" name="alamat" value="">
-            
-            
           </td>              
           <td></td>
         </tr>
-      <?php } ?>
 
 
-
-      
-        <?php 
-        if($group_penjualan=="")
-        {?>
-        <tr>
-          
-          <td colspan="7" align="right"><b>Ekspedisi</b></td>
-          <td  align="right" >
-            
-            <select class="form-control" id="province_id" name="province_id">              
-            </select>
-            <select class="form-control" id="city_id" name="city_id">              
-            </select>
-            <select class="form-control" id="subdistrict_id" name="subdistrict_id">              
-            </select>
-            <select class="form-control" id="courier" name="courier">              
-            </select>
-
-            <select class="form-control" id="service" name="service">              
-            </select>
-
-            <input id="ongkir" type="text" name="harga_ekspedisi" class="form-control nomor" style="text-align:right;" readonly>
-
-            
-            
-            <input type="hidden" id="t4_service" name="nama_ekspedisi">
-            <input type="hidden" id="t4_alamat_lengkap" name="alamat">
-            
-
-
-          </td>
-          <td></td>
-        </tr>
-      <?php } ?>
 
         <tr>
-          <td colspan="7" align="right"><b>Total</b></td>
+          <td colspan="6" align="right"><b>Total</b></td>
           <td id="t4_total" align="right" style="font-weight: bold;"></td><td></td>
         </tr>
 
         <tr>
-          <td colspan="7" align="right"><b>Bayar</b></td>
+          <td colspan="6" align="right"><b>Bayar</b></td>
           <td  align="right" >
           <input id="t4_bayar" type="text"  class="form-control nomor" name="bayar" value="" required style="text-align:right;">
           </td>
@@ -274,7 +209,7 @@ if(isset($group_penjualan))
 
 
         <tr>
-          <td colspan="7" align="right"><b>Selisih</b></td>
+          <td colspan="6" align="right"><b>Selisih</b></td>
           <td  align="right" id="t4_kembali">
           
           </td>
@@ -322,194 +257,6 @@ $('.datepicker').datepicker({
 notif(); 
 
 total();
-
-
-<?php 
-  if($group_penjualan!="")
-  {?>
-    $("#courier").append("<option value='<?php echo @$data[0]->nama_ekspedisi?>' selected><?php echo @$data[0]->nama_ekspedisi?></option>");
-    <?php 
-  }else{
-  ?>
-
-    list_courier();
-  <?php 
-  }
-  ?>
-
-
-
-
-$("#nama_ekspedisi").on("change",function(){
-  if($(this).val()=="")
-  {
-    $("#t4_ekspedisi").val("0");
-  }
-  $.get("<?php echo base_url()?>index.php/ekspedisi/by_nama/"+encodeURI($(this).val()),function(e){
-      console.log(e);
-      
-      $("#t4_ekspedisi").val(e[0].harga_ekspedisi);
-      total();
-
-  })
-})
-
-/********* ongkir ********/
-$(document).ready(function(){
-  list_province();
-})
-function list_province()
-{
-  $.get("<?php echo base_url()?>index.php/ongkir/list_province",function(e){
-      //console.log(e.rajaongkir.results);
-      $("#province_id").empty();
-      $("#province_id").append("<option value=''>--- Provinsi ---</option>");
-      $.each(e.rajaongkir.results,function(key,val){
-          
-          $("#province_id").append("<option value='"+val.province_id+"'>"+val.province+"</option>");
-
-      })
-  })
-}
-
-$("#province_id").on("change",function(e){
-  total();
-  var province_id = $(this).val();
-  console.log("province_id:"+province_id);
-  list_city(province_id);
-  $("#subdistrict_id").empty();
-  $("#courier").empty();
-  $("#service").empty();
-  $("#ongkir").val("");
-})
-
-function list_city(province_id)
-{
-  $.get("<?php echo base_url()?>index.php/ongkir/list_city/"+province_id,function(e){
-      //console.log(e.rajaongkir.results);
-      $("#city_id").empty();
-      $("#city_id").append("<option value=''>--- Kota/Kab ---</option>");
-      $.each(e.rajaongkir.results,function(key,val){
-          
-          $("#city_id").append("<option value='"+val.city_id+"'>"+val.city_name+"</option>");
-      })
-  })
-}
-
-$("#city_id").on("change",function(e){
-  total();
-  var city_id = $(this).val();
-  console.log("city:"+city_id);
-  list_subdistrict(city_id);
-  $("#subdistrict_id").empty();
-  $("#courier").empty();
-  $("#service").empty();
-  $("#ongkir").val("");
-})
-
-function list_subdistrict(city_id)
-{
-  $.get("<?php echo base_url()?>index.php/ongkir/list_subdistrict/"+city_id,function(e){
-      //console.log(e.rajaongkir.results);
-      $("#subdistrict_id").empty();
-      $("#subdistrict_id").append("<option value=''>--- Kecamatan ---</option>");
-      $.each(e.rajaongkir.results,function(key,val){
-          
-          $("#subdistrict_id").append("<option value='"+val.subdistrict_id+"'>"+val.subdistrict_name+"</option>");
-      })
-  }) 
-}
-
-
-$("#subdistrict_id").on("change",function(e){
-  total();
-  var subdistrict_id = $(this).val();
-  console.log("subdistrict_id:"+subdistrict_id);
-  list_courier();
-
-  $("#courier").empty();
-  $("#service").empty();
-  $("#ongkir").val("");
-})
-
-function list_courier()
-{
-  $.get("<?php echo base_url()?>index.php/ongkir/list_kurir/",function(e){
-      //console.log(e.rajaongkir.results);
-      $("#courier").empty();
-      $("#courier").append("<option value=''>--- Kurir ---</option>");
-      $.each(e,function(key,val){          
-          $("#courier").append("<option value='"+val+"'>"+val+"</option>");
-      })
-  }) 
-}
-
-$("#courier").on("change",function(){
-  total();
-  cek_cost($(this));
-
-
-})
-
-
-function cek_cost(ini)
-{
-
-  var weight = buang_titik($("#total_berat").val());//disini nanti berat gram
-  var origin = "1558";
-  var originType = "subdistrict";
-  var destination = $("#subdistrict_id").val();
-  var destinationType = "subdistrict";
-  var courier = ini.val();
-
-  var all = {
-              weight:weight,
-              origin:origin,
-              originType:originType,
-              destination:destination,
-              destinationType:destinationType,
-              courier:courier
-            };
-  $.get("<?php echo base_url()?>index.php/ongkir/cost/",all,function(e){
-
-      $("#ongkir").empty();
-      $("#ongkir").val("");
-      $("#service").empty();
-      $("#service").append("<option value=''>--- Layanan ---</option>");
-      $.each(e,function(key,val){          
-          console.log(val);  
-
-          $("#t4_alamat_lengkap").val(val.destination_details.province+", "+val.destination_details.type+" "+val.destination_details.city+", Kec."+val.destination_details.subdistrict_name);
-
-
-          $.each(val.results,function(x,y){
-            
-
-            $.each(y.costs,function(a,b){
-              //console.log(b);
-              var layanan = b.description+" | "+b.service;
-              $("#service").append("<option value='"+b.cost[0].value+"'>"+layanan+"</option>");
-              
-            })
-          })        
-      })
-      
-  }) 
-}
-
-$("#service").on("change",function(){
-  
-  var ongkir  = $(this).val();
-  var desc    =  $(this).find('option:selected').text();
-  $("#t4_service").val(desc);
-  $("#ongkir").val(formatRupiah(ongkir));
-  total_berat();
-  total();
-
-})
-/********* ongkir ********/
-
-
 
 $(function(){
 
@@ -584,10 +331,11 @@ $( function() {
                         harga_retail: obj.harga_retail, 
                         harga_lusin: obj.harga_lusin, 
                         harga_koli: obj.harga_koli, 
+                        harga_partai: obj.harga_partai, 
                         jum_per_koli: obj.jum_per_koli, 
                         jum_per_lusin: obj.jum_per_lusin, 
+                        jum_partai: obj.jum_partai, 
                         reminder: obj.reminder, 
-                        berat:obj.berat
                     };
                 }));
                 
@@ -616,24 +364,35 @@ $( function() {
 
       var option =   "<option value='retail'>Retail</option>"+
                       "<option value='lusin'>Lusin</option>"+
-                      "<option value='koli'>Koli</option>";
+                      "<option value='koli'>Koli</option>"+
+                      "<option value='partai'>Partai</option>";
+                      
 
       var stok          = parseInt(ui.item.stok);
       var jum_per_lusin = parseInt(ui.item.jum_per_lusin);
       var jum_per_koli  = parseInt(ui.item.jum_per_koli);
+      var jum_partai  = parseInt(ui.item.jum_partai);
       
 
       if(stok<jum_per_lusin){
-        var option =   "<option value='retail'>Retail</option>"+                        
+        var option =   "<option value='retail'>Retail</option>"+ 
+                        "<option value='partai'>Partai</option>"+
                         "<option value='koli'>Koli</option>";        
       }
 
       if(stok<jum_per_koli){
         var option =   "<option value='retail'>Retail</option>"+                        
+                        "<option value='partai'>Partai</option>"+
+                        "<option value='lusin'>Lusin</option>";
+      }
+      
+      if(stok<jum_partai){
+        var option =   "<option value='retail'>Retail</option>"+
+                        "<option value='koli'>Koli</option>"+
                         "<option value='lusin'>Lusin</option>";
       }
 
-      if(stok<jum_per_koli && stok<jum_per_lusin ){
+      if(stok<jum_per_koli && stok<jum_per_lusin && stok<jum_partai){
         var option =   "<option value='retail'>Retail</option>";
       }
 
@@ -641,19 +400,17 @@ $( function() {
 
        
                   
-       var pilih_satuan = "<select name='satuan_jual[]' class='form-control' id='pilihSatuan' onchange='gantiHarga("+ui.item.harga_retail+","+ui.item.harga_lusin+","+ui.item.harga_koli+","+ui.item.jum_per_koli+","+ui.item.jum_per_lusin+",$(this))'>"+
+       var pilih_satuan = "<select name='satuan_jual[]' class='form-control' id='pilihSatuan' onchange='gantiHarga("+ui.item.harga_retail+","+ui.item.harga_lusin+","+ui.item.harga_koli+","+ui.item.jum_per_koli+","+ui.item.jum_per_lusin+","+ui.item.harga_partai+","+ui.item.jum_partai+",$(this))'>"+
                           option+
                          "</select>";
 
         var jum_batas = "<input id='jum_per_koli' type='hidden' value='"+ui.item.jum_per_koli+"'>"+
                         "<input id='jum_per_lusin' type='hidden' value='"+ui.item.jum_per_lusin+"'>"+
+                        "<input id='jum_partai' type='hidden' value='"+ui.item.jum_partai+"'>"+
                         "<input id='id_barang' name='id_barang[]' type='hidden' value='"+ui.item.value+"'>";
 
         var template = "<tr>"+                
-                "<td>"+jum_batas+ui.item.value+"</td>"+
-                "<td id='stoknya'>"+ui.item.stok+"</td>"+
-                "<td id='nama_barang'>"+ui.item.label+"</td>"+
-                "<td align='right' id='t4_berat'>"+ui.item.berat+"</td>"+
+                "<td>"+jum_batas+ui.item.value+"</td><td id='stoknya'>"+ui.item.stok+"</td><td id='nama_barang'>"+ui.item.label+"</td>"+
                 "<td>"+pilih_satuan+"</td>"+
                 "<td align='right'>"+
                   "<input  id='t4_harga' class='form-control' readonly name='harga_jual[]' value='"+formatRupiah(ui.item.harga_retail)+"'>"+
@@ -662,7 +419,6 @@ $( function() {
                 "<input class='form-control' type='number' id='jumlah_beli' name='jumlah[]'  placeholder='qty' required value='1' >"+
                 "</td>"+
                 "<td align='right' id='t4_sub_total'>"+ui.item.harga_retail+"</td>"+
-                "<td align='right' id='t4_sub_berat'>"+ui.item.berat+"</td>"+
                           
                           
                   "<td><button class='btn btn-danger btn-xs' id='remove_order' type='button'>Hapus</button></td></tr>"
@@ -681,7 +437,7 @@ $( function() {
 
 });
 
-function gantiHarga(a,b,c,d,e,ini)
+function gantiHarga(a,b,c,d,e,f,g,ini)
 {
 
   var t4_harga = ini.parent().parent().find("#t4_harga");
@@ -712,13 +468,19 @@ function gantiHarga(a,b,c,d,e,ini)
   {
     ret = c;
     jumlah_beli.val(d);
-  }  
+  }
+  
+  
+  if(ini.val()=="partai")
+  {
+    ret = f;
+    jumlah_beli.val(g);
+  }
 
 
   t4_harga.val(formatRupiah(ret));
 
   sub_total(jumlah_beli);
-  sub_total_berat(jumlah_beli);
   
 }
 
@@ -737,6 +499,7 @@ $("#tbl_datanya").on("keydown keyup mousedown mouseup select contextmenu drop","
   var stoknya       = parseInt($(this).parent().parent().find("#stoknya").html());
   var jum_per_koli  = parseInt($(this).parent().parent().find("#jum_per_koli").val());
   var jum_per_lusin = parseInt($(this).parent().parent().find("#jum_per_lusin").val());
+  var jum_partai    = parseInt($(this).parent().parent().find("#jum_partai").val());
 
   var pilihSatuan   = $(this).parent().parent().find("#pilihSatuan").val();
 
@@ -761,11 +524,16 @@ $("#tbl_datanya").on("keydown keyup mousedown mouseup select contextmenu drop","
     $(this).attr('min',jum_per_lusin);
     //$(this).val(jum_per_lusin);
   }
+  
+  if(pilihSatuan=='partai' && dibeli<jum_partai){
+    console.log("jum_partai"+jum_partai);
+    //alert("Minimal beli Lusin barang ini = "+jum_per_lusin);
+    $(this).attr('min',jum_partai);
+    //$(this).val(jum_per_lusin);
+  }
 
   sub_total($(this));  
-  sub_total_berat($(this));
   
-
 
 })
 
@@ -805,53 +573,26 @@ function sub_total(ini)
 }
 
 
-function sub_total_berat(ini)
-{
-  var qty = ini.val() || 0;
-  var berat = buang_titik(ini.parent().parent().find("#t4_berat").text()) || 0;
-  var sub_total_berat = parseInt(qty)*parseInt(berat);
-  ini.parent().parent().find("#t4_sub_berat").html(formatRupiah(sub_total_berat)); 
-  total();
-}
-
-
-
 function total()
 {
   var total=0;
   $("tbody#t4_order tr td#t4_sub_total").each(function(){
-     total+= parseInt(buang_titik($(this).text())) || 0;
+     total+= parseInt(buang_titik($(this).text()));
 
   })
   console.log(total);
 
   var saldo  = parseInt(buang_titik($("#t4_saldo").val()));
-  var diskon = parseInt(buang_titik($("#t4_diskon").val()));  
+  var diskon = parseInt(buang_titik($("#t4_diskon").val()));
+  var harga_ekspedisi = parseInt(buang_titik($("#t4_ekspedisi").val()));
   var transport_ke_ekspedisi = parseInt(buang_titik($("#t4_transport_ke_ekspedisi").val()));
-  var ongkir = parseInt(buang_titik($("#ongkir").val())) || 0;
   total+=transport_ke_ekspedisi;
-  total+=ongkir;
+  total+=harga_ekspedisi;
   total-=diskon;
   total-=saldo;
   $("#t4_total").html(formatRupiah(total));
 
   jika_ada_stok_kurang();
-
-  total_berat();
-
-  
-
-}
-
-function total_berat()
-{
-  //berat
-  var tot_berat = 0;
-  $("tbody#t4_order tr td#t4_sub_berat").each(function(){
-     tot_berat+= parseInt(buang_titik($(this).text()));
-
-  })
-  $("#total_berat").val(formatRupiah(tot_berat));
 }
 
 
@@ -923,7 +664,7 @@ $("#penjualan_barang").on("submit",function(){
     $.get("<?php echo base_url()?>index.php/barang/hapus_pending/<?php echo $group_penjualan?>",function(){});
     /****** hapus dlu pending *******/
 
-    $.post("<?php echo base_url()?>index.php/barang/go_jual",$(this).serialize(),function(x){
+    $.post("<?php echo base_url()?>index.php/"+classnya+"/go_jual",$(this).serialize(),function(x){
       console.log(x);
       
         window.open("<?php echo base_url()?>index.php/barang/struk_penjualan/"+x);
@@ -979,12 +720,7 @@ return false;
 hanya_nomor(".nomor");
 function buang_titik(mystring)
 {
-  try{
-    return mystring.replace(/\./g,'');
-  }catch{
-    return 0;
-  }
-  
+  return (mystring.replace(/\./g,''));
 }
 
 function formatRupiah(x) {
